@@ -680,6 +680,15 @@ static void xdg_surface_unmap(struct wl_listener *listener, void *data) {
 static void xdg_surface_destroy(struct wl_listener *listener, void *data) {
 	/* Called when the surface is destroyed and should never be shown again. */
 	struct tinywl_view *view = wl_container_of(listener, view, destroy);
+	struct tinywl_view *next;
+	struct tinywl_server *server = view->server;
+	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(server->seat);
+	if (wl_list_length(&server->views) >= 2) {
+		next = wl_container_of(view->link.next, next, link);
+		wlr_xdg_toplevel_set_activated(next->xdg_surface, true);
+		wlr_seat_keyboard_notify_enter(server->seat, next->xdg_surface->surface,
+									   keyboard->keycodes, keyboard->num_keycodes, &keyboard->modifiers);
+	}
 	wl_list_remove(&view->link);
 	free(view);
 }
