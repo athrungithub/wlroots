@@ -403,10 +403,10 @@ static void process_cursor_motion(struct tinywl_server *server, uint32_t time) {
 	struct wlr_surface *surface = NULL;
 	struct tinywl_view *view = desktop_view_at(server,
 			server->cursor->x, server->cursor->y, &surface, &sx, &sy);
-	if (!view) {
-		/* If there's no view under the cursor, set the cursor image to a
+	if (seat->keyboard_state.focused_surface != seat->pointer_state.focused_surface) {
+		/* If view is not focused , set the cursor image to a
 		 * default. This is what makes the cursor image appear when you move it
-		 * around the screen, not over any views. */
+		 * around the screen. */
 		wlr_xcursor_manager_set_cursor_image(
 				server->cursor_mgr, "left_ptr", server->cursor);
 	}
